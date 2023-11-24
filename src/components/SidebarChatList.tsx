@@ -1,4 +1,5 @@
 'use client'
+
 import { pusherClient } from '@/lib/pusher'
 import { chatHrefConstructor, toPusherKey } from '@/lib/utils'
 import { usePathname, useRouter } from 'next/navigation'
@@ -27,9 +28,8 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`))
 
     const newFriendHandler = (newFriend: User) => {
-      
+      console.log("received new user", newFriend)
       setActiveChats((prev) => [...prev, newFriend])
-      router.refresh()
     }
 
     const chatHandler = (message: ExtendedMessage) => {
@@ -64,7 +64,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
       pusherClient.unbind('new_message', chatHandler)
       pusherClient.unbind('new_friend', newFriendHandler)
     }
-  }, [pathname, sessionId, router,setActiveChats,activeChats])
+  }, [pathname, sessionId, router])
 
   useEffect(() => {
     if (pathname?.includes('chat')) {

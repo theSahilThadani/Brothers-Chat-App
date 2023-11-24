@@ -20,27 +20,30 @@ const FriendRequests: FC<FriendRequestsProps> = ({
   const [friendRequests, setFriendRequests] = useState<IncomingFriendRequest[]>(
     incomingFriendRequests
   )
-    //using the pusher client to listen to incoming friend requests
-  //using pusehr to subsribe the event
+
   useEffect(() => {
-    pusherClient.subscribe(toPusherKey(`user${sessionId}friend_request`))
+    pusherClient.subscribe(
+      toPusherKey(`user:${sessionId}:incoming_friend_requests`)
+    )
+    console.log("listening to ", `user:${sessionId}:incoming_friend_requests`)
 
     const friendRequestHandler = ({
       senderId,
       senderEmail,
     }: IncomingFriendRequest) => {
+      console.log("function got called")
       setFriendRequests((prev) => [...prev, { senderId, senderEmail }])
     }
 
-    pusherClient.bind('live_friend_req',friendRequestHandler)
-    return()=>{
+    pusherClient.bind('incoming_friend_requests', friendRequestHandler)
+
+    return () => {
       pusherClient.unsubscribe(
         toPusherKey(`user:${sessionId}:incoming_friend_requests`)
       )
-      pusherClient.unbind('incoming_friend_requests',friendRequestHandler)
+      pusherClient.unbind('incoming_friend_requests', friendRequestHandler)
     }
-
-  },[sessionId])
+  }, [sessionId])
 
   const acceptFriend = async (senderId: string) => {
     await axios.post('/api/friends/accept', { id: senderId })
