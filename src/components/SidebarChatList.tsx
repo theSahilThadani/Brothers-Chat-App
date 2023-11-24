@@ -28,8 +28,9 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`))
 
     const newFriendHandler = (newFriend: User) => {
-      console.log("received new user", newFriend)
+      
       setActiveChats((prev) => [...prev, newFriend])
+
     }
 
     const chatHandler = (message: ExtendedMessage) => {
@@ -50,7 +51,24 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
           senderName={message.senderName}
         />
       ))
-
+        if(Notification.permission !== "granted"){
+          Notification.requestPermission().then(prem =>{
+            if(prem === "granted"){
+              new Notification("New Message", {
+                body: message.text,
+                icon: message.senderImg,
+                
+              })
+            }
+          })
+        }
+        else{
+          new Notification("New Message", {
+            body: message.text,
+            icon: message.senderImg,
+            
+          })
+        }
       setUnseenMessages((prev) => [...prev, message])
     }
 
